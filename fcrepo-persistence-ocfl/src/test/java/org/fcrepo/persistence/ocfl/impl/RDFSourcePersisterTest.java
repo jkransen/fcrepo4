@@ -21,8 +21,6 @@ import static org.apache.jena.graph.NodeFactory.createLiteral;
 import static org.apache.jena.graph.NodeFactory.createURI;
 import static org.apache.jena.rdf.model.ModelFactory.createDefaultModel;
 import static org.fcrepo.kernel.api.RdfLexicon.RDF_SOURCE;
-import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.DEFAULT_RDF_EXTENSION;
-import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.INTERNAL_FEDORA_DIRECTORY;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -49,6 +47,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.getInternalFedoraDirectory;
+import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.getRDFFileExtension;
 
 /**
  * @author dbernstein
@@ -89,8 +90,8 @@ public class RDFSourcePersisterTest {
 
         //create some test server triples
         final Stream<Triple> serverTriples = Stream.of(Triple.create(resourceUri,
-                                                                     RDF.type.asNode(),
-                                                                     RDF_SOURCE.asNode()));
+                RDF.type.asNode(),
+                RDF_SOURCE.asNode()));
         final RdfStream serverTriplesStream = new DefaultRdfStream(resourceUri, serverTriples);
 
         when(mapping.getOcflObjectId()).thenReturn("object-id");
@@ -101,7 +102,7 @@ public class RDFSourcePersisterTest {
         persister.persist(session, operation, mapping);
 
         //verify user triples
-        verify(session).write(eq("child" + DEFAULT_RDF_EXTENSION), userTriplesIsCaptor.capture());
+        verify(session).write(eq("child" + getRDFFileExtension()), userTriplesIsCaptor.capture());
         final InputStream userTriplesIs = userTriplesIsCaptor.getValue();
 
         final Model userModel = createDefaultModel();
@@ -111,7 +112,7 @@ public class RDFSourcePersisterTest {
                 DC.title, title));
 
         //verify server triples
-        verify(session).write(eq(INTERNAL_FEDORA_DIRECTORY + "/child" + DEFAULT_RDF_EXTENSION), serverTriplesIsCaptor.capture());
+        verify(session).write(eq(getInternalFedoraDirectory() + "child" + getRDFFileExtension()), serverTriplesIsCaptor.capture());
         final InputStream serverTriplesIs = serverTriplesIsCaptor.getValue();
 
         final Model serverModel = createDefaultModel();

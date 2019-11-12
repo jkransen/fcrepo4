@@ -19,13 +19,11 @@ package org.fcrepo.persistence.ocfl.impl;
 
 import static org.fcrepo.kernel.api.operations.ResourceOperationType.CREATE;
 import static org.fcrepo.kernel.api.operations.ResourceOperationType.UPDATE;
-import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.INTERNAL_FEDORA_DIRECTORY;
 import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.relativizeSubpath;
 import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.writeRDF;
 
 import static java.util.Arrays.asList;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,6 +34,8 @@ import org.fcrepo.persistence.api.exceptions.PersistentStorageException;
 import org.fcrepo.persistence.ocfl.api.OCFLObjectSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.getInternalFedoraDirectory;
 
 /**
  * This class implements the persistence of a new RDFSource
@@ -66,7 +66,6 @@ public class RDFSourcePersister extends AbstractPersister {
         writeRDF(session, ((RdfSourceOperation) operation).getTriples(), subpath);
 
         //write server props
-        writeRDF(session, operation.getServerManagedProperties(), INTERNAL_FEDORA_DIRECTORY + File.separator + subpath);
+        writeRDF(session, operation.getServerManagedProperties(), getInternalFedoraDirectory() + subpath);
     }
-
 }
