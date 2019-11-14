@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.getInternalFedoraDirectory;
+import static org.fcrepo.persistence.ocfl.OCFLPeristentStorageUtils.resolveOCFLSubpath;
 
 /**
  * This class implements the persistence of a new RDFSource
@@ -59,13 +60,14 @@ public class RDFSourcePersister extends AbstractPersister {
     @Override
     public void persist(final OCFLObjectSession session, final ResourceOperation operation,
                         final FedoraOCFLMapping mapping) throws PersistentStorageException {
+        final RdfSourceOperation rdfSourceOp = (RdfSourceOperation)operation;
         log.debug("persisting RDFSource ({}) to {}", operation.getResourceId(), mapping.getOcflObjectId());
         final String subpath = relativizeSubpath(mapping.getParentFedoraResourceId(), operation.getResourceId());
-
+        final String resolvedSubpath = resolveOCFLSubpath(subpath);
         //write user triples
-        writeRDF(session, ((RdfSourceOperation) operation).getTriples(), subpath);
+        writeRDF(session, rdfSourceOp.getTriples(), resolvedSubpath);
 
         //write server props
-        writeRDF(session, operation.getServerManagedProperties(), getInternalFedoraDirectory() + subpath);
+        writeRDF(session, operation.getServerManagedProperties(), getInternalFedoraDirectory() + resolvedSubpath);
     }
 }
